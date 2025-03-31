@@ -49,6 +49,38 @@ export const App = () => {
       alert("Une erreur est survenue lors de l'ajout du produit.");
     }
   };
+
+  const updateProduct = async (id) => {
+    const updatedProduct = {
+      title: "Produit modifié",
+      price: 29.99,
+      description: "Description mise à jour du produit.",
+      image: "https://via.placeholder.com/150",
+      category: "electronics",
+    };
+
+    try {
+      const response = await fetch(`https://fakestoreapi.com/products/${id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(updatedProduct),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        alert(`Le produit avec l'id ${data.id} a été modifié`);
+
+        setProducts(
+          products.map((product) => (product.id === id ? data : product))
+        );
+      } else {
+        throw new Error("Erreur lors de la modification du produit");
+      }
+    } catch (error) {
+      console.error(error);
+      alert("Une erreur est survenue lors de la modification du produit.");
+    }
+  };
   return (
     <Container className="mt-4">
       <Button onClick={addProduct} variant="primary" className="mb-4">
@@ -69,6 +101,12 @@ export const App = () => {
                   {product.description}
                 </Card.Text>
                 <Card.Text>{product.price} €</Card.Text>
+                <Button
+                  onClick={() => updateProduct(product.id)}
+                  variant="warning"
+                >
+                  Modifier le produit complet
+                </Button>
               </Card.Body>
             </Card>
           </Col>
