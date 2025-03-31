@@ -109,6 +109,24 @@ export const App = () => {
       alert("Une erreur est survenue lors de la modification du prix.");
     }
   };
+
+  const deleteProduct = async (id) => {
+    try {
+      const response = await fetch(`https://fakestoreapi.com/products/${id}`, {
+        method: "DELETE",
+      });
+
+      if (response.ok) {
+        alert(`Le produit avec l'id ${id} a été supprimé`);
+        setProducts(products.filter((product) => product.id !== id));
+      } else {
+        throw new Error("Erreur lors de la suppression du produit");
+      }
+    } catch (error) {
+      console.error(error);
+      alert("Une erreur est survenue lors de la suppression du produit.");
+    }
+  };
   return (
     <Container className="mt-4">
       <Button onClick={addProduct} variant="primary" className="mb-4">
@@ -137,10 +155,17 @@ export const App = () => {
                 </Button>
                 <Button
                   onClick={() => updatePrice(product.id)}
-                  variant="danger"
+                  variant="secondary"
                   className="mt-2"
                 >
                   Modifier le prix du produit
+                </Button>
+                <Button
+                  onClick={() => deleteProduct(product.id)}
+                  variant="danger"
+                  className="mt-2"
+                >
+                  Supprimer le produit
                 </Button>
               </Card.Body>
             </Card>
