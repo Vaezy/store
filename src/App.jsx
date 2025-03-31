@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Card, Col, Container, Row } from "react-bootstrap";
+import { Button, Card, Col, Container, Row } from "react-bootstrap";
 import "./App.scss";
 
 export const App = () => {
@@ -16,9 +16,44 @@ export const App = () => {
       }
     };
     fetchProducts();
-  });
+  }, []);
+
+  const addProduct = async () => {
+    const newProduct = {
+      title: "Nouveau produit",
+      price: 19.99,
+      description:
+        "Ceci est une description d'un produit ajouté par l'utilisateur.",
+      image: "https://via.placeholder.com/150",
+      category: "electronics",
+    };
+
+    try {
+      const response = await fetch("https://fakestoreapi.com/products", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(newProduct),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        alert(`Le produit avec l'id ${data.id} a été créé`);
+        setProducts([...products, data]);
+      } else {
+        throw new Error("Erreur lors de la création du produit");
+      }
+    } catch (error) {
+      console.error(error);
+      alert("Une erreur est survenue lors de l'ajout du produit.");
+    }
+  };
   return (
     <Container className="mt-4">
+      <Button onClick={addProduct} variant="primary" className="mb-4">
+        Ajouter un produit
+      </Button>
       <Row>
         {products.map((product) => (
           <Col key={product.id} md={4} lg={3} className="mb-4">
@@ -26,6 +61,7 @@ export const App = () => {
               <Card.Img
                 src={product.image}
                 className="product-image"
+                alt={product.title}
               ></Card.Img>
               <Card.Body>
                 <Card.Title>{product.title}</Card.Title>
