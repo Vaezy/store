@@ -1,33 +1,30 @@
 import { useEffect, useState } from "react";
-import {
-  Alert,
-  Button,
-  Card,
-  Col,
-  Container,
-  Row,
-  Spinner,
-} from "react-bootstrap";
+import { Button, Card, Col, Container, Row } from "react-bootstrap";
 import "./App.scss";
 
 export const App = () => {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     const fetchProducts = async () => {
-      setLoading(true);
-      setError("");
       try {
         const response = await fetch("https://fakestoreapi.com/products");
-        if (!response.ok)
-          throw new Error("Erreur lors de la récupération des produits.");
+
+        if (!response.ok) {
+          throw new Error(
+            `Erreur HTTP: ${
+              response.statusText ? response.statusText + " - " : ""
+            }${response.status}`
+          );
+        }
 
         const data = await response.json();
         setProducts(data);
       } catch (error) {
-        setError(error.message);
+        setError("Une erreur est survenue.");
+        console.error(error.message);
       } finally {
         setLoading(false);
       }
@@ -54,14 +51,20 @@ export const App = () => {
         body: JSON.stringify(newProduct),
       });
 
-      if (!response.ok)
-        throw new Error("Erreur lors de la création du produit.");
+      if (!response.ok) {
+        throw new Error(
+          `Erreur HTTP: ${
+            response.statusText ? response.statusText + " - " : ""
+          }${response.status}`
+        );
+      }
 
       const data = await response.json();
       alert(`Le produit avec l'id ${data.id} a été créé`);
       setProducts([...products, data]);
     } catch (error) {
-      alert(error.message);
+      console.error(error.message);
+      alert("Une erreur est survenue lors de l'ajout du produit.");
     }
   };
 
@@ -81,17 +84,22 @@ export const App = () => {
         body: JSON.stringify(updatedProduct),
       });
 
-      if (!response.ok)
-        throw new Error("Erreur lors de la modification du produit.");
+      if (!response.ok) {
+        throw new Error(
+          `Erreur HTTP: ${
+            response.statusText ? response.statusText + " - " : ""
+          }${response.status}`
+        );
+      }
 
       const data = await response.json();
       alert(`Le produit avec l'id ${data.id} a été modifié`);
-
       setProducts(
         products.map((product) => (product.id === id ? data : product))
       );
     } catch (error) {
-      alert(error.message);
+      console.error(error.message);
+      alert("Une erreur est survenue lors de la modification du produit.");
     }
   };
 
@@ -105,8 +113,13 @@ export const App = () => {
         body: JSON.stringify({ price: newPrice }),
       });
 
-      if (!response.ok)
-        throw new Error("Erreur lors de la modification du prix.");
+      if (!response.ok) {
+        throw new Error(
+          `Erreur HTTP: ${
+            response.statusText ? response.statusText + " - " : ""
+          }${response.status}`
+        );
+      }
 
       const data = await response.json();
       alert(`Le prix du produit avec l'id ${data.id} a été modifié`);
@@ -117,7 +130,8 @@ export const App = () => {
         )
       );
     } catch (error) {
-      alert(error.message);
+      console.error(error.message);
+      alert("Une erreur est survenue lors de la modification du prix.");
     }
   };
 
@@ -127,23 +141,30 @@ export const App = () => {
         method: "DELETE",
       });
 
-      if (!response.ok)
-        throw new Error("Erreur lors de la suppression du produit.");
+      if (!response.ok) {
+        throw new Error(
+          `Erreur HTTP: ${
+            response.statusText ? response.statusText + " - " : ""
+          }${response.status}`
+        );
+      }
 
       alert(`Le produit avec l'id ${id} a été supprimé`);
       setProducts(products.filter((product) => product.id !== id));
     } catch (error) {
-      alert(error.message);
+      console.error(error.message);
+      alert("Une erreur est survenue lors de la suppression du produit.");
     }
   };
+
+  if (error) return <p>Erreur : {error}</p>;
+  if (loading) return <p>Chargement...</p>;
+
   return (
     <Container className="mt-4">
       <Button onClick={addProduct} variant="primary" className="mb-4">
         Ajouter un produit
       </Button>
-
-      {loading && <Spinner animation="border" />}
-      {error && <Alert variant="danger">{error}</Alert>}
 
       <Row>
         {products.map((product) => (
